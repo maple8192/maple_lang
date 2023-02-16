@@ -1,12 +1,10 @@
-use crate::tokenizer::token::token_type::reserved_token::ReservedToken;
 use crate::tokenizer::token::token_type::symbol::Symbol;
 use crate::tokenizer::token::token_type::word::Word;
 
 pub mod symbol;
 pub mod word;
-pub mod reserved_token;
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum TokenType {
     Symbol(Symbol),
     Word(Word),

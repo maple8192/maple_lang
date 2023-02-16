@@ -17,7 +17,7 @@ fn main() {
     let src = file_reader::read(src_path);
 
     let tokens = tokenizer::tokenize(&src);
-    if let Err(message) = tokens {
+    if let Err(message) = &tokens {
         println!("Error occurred: {}", message);
     }
     let tokens = tokens.unwrap();

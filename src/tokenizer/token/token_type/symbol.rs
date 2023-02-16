@@ -1,5 +1,3 @@
-use crate::tokenizer::token::token_type::reserved_token::ReservedToken;
-
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Symbol {
     OpenBracket,
@@ -8,8 +6,8 @@ pub enum Symbol {
     CloseBrace,
 }
 
-impl ReservedToken for Symbol {
-    fn to_str(&self) -> &str {
+impl Symbol {
+    pub fn to_str(&self) -> &str {
         match self {
             Symbol::OpenBracket => "(",
             Symbol::CloseBracket => ")",
@@ -18,7 +16,7 @@ impl ReservedToken for Symbol {
         }
     }
 
-    const fn get_len_order_list() -> Vec<Symbol> {
+    pub fn get_len_order_list() -> Vec<Symbol> {
         vec![
             Symbol::OpenBracket,
             Symbol::CloseBracket,
@@ -26,10 +24,8 @@ impl ReservedToken for Symbol {
             Symbol::CloseBrace,
         ]
     }
-}
 
-impl Symbol {
-    pub const fn get_reserved_char_list() -> Vec<char> {
+    pub fn get_reserved_char_list() -> Vec<char> {
         vec!['(', ')', '{', '}']
     }
 }
