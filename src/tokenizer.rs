@@ -6,10 +6,8 @@ use crate::tokenizer::token::token_type::word::Word;
 
 pub mod token;
 
-pub fn tokenize(src: &String) -> Result<VecDeque<Token>, String> {
+pub fn tokenize(src: &str) -> Result<VecDeque<Token>, String> {
     let mut tokens = VecDeque::new();
-
-    let src = src.as_str();
 
     let mut line = 0;
     let mut pos = 0;
