@@ -16,27 +16,28 @@ pub fn tokenize(src: &String) -> Result<VecDeque<Token>, String> {
 
     let mut index = 0;
     while index < src.len() {
-        let new_token_type = create_token(&src[src.char_indices().nth(index).unwrap().0..]);
-
-        match src.chars().nth(0).unwrap() {
+        match src.chars().nth(index).unwrap() {
             '\n' => {
                 index += 1;
                 line += 1;
                 pos = 0;
             },
-            ' ' | '\t' => {
+            ' ' | '\t' | '\r' => {
                 index += 1;
                 pos += 1;
             }
-            _ => if let Some(new_token_type) = new_token_type {
-                tokens.push_back(Token::new(new_token_type.clone(), line, pos));
+            _ => {
+                let new_token_type = create_token(&src[src.char_indices().nth(index).unwrap().0..]);
+                if let Some(new_token_type) = new_token_type {
+                    tokens.push_back(Token::new(new_token_type.clone(), line, pos));
 
-                let token_len = new_token_type.get_len();
-                index += token_len;
-                pos += token_len;
-            } else {
-                let message = format!("Unexpected Token({}:{})", line, pos);
-                return Err(message);
+                    let token_len = new_token_type.get_len();
+                    index += token_len;
+                    pos += token_len;
+                } else {
+                    let message = format!("Unexpected Token({}:{})", line, pos);
+                    return Err(message);
+                }
             },
         }
     }
