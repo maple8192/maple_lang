@@ -1,5 +1,6 @@
 mod env_args;
 mod file_reader;
+mod tokenizer;
 
 use std::env;
 
@@ -14,5 +15,10 @@ fn main() {
 
     let src_path = args[1].clone();
     let src = file_reader::read(src_path);
-    println!("{}", src);
+
+    let tokens = tokenizer::tokenize(&src);
+    if let Err(message) = tokens {
+        println!("Error occurred: {}", message);
+    }
+    let tokens = tokens.unwrap();
 }
