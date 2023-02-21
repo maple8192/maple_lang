@@ -1,4 +1,7 @@
-#[derive(Copy, Clone, Eq, PartialEq)]
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
+#[derive(Copy, Clone, Eq, PartialEq, EnumIter)]
 pub enum Symbol {
     Add,
     Sub,
@@ -85,49 +88,15 @@ impl Symbol {
     }
 
     pub fn get_len_order_list() -> Vec<Symbol> {
-        vec![
-            Symbol::LessOrEqual,
-            Symbol::GreaterOrEqual,
-            Symbol::Exchange,
-            Symbol::Increment,
-            Symbol::Decrement,
-            Symbol::Power,
-            Symbol::Root,
-            Symbol::Equal,
-            Symbol::NotEqual,
-            Symbol::And,
-            Symbol::Or,
-            Symbol::Create,
-            Symbol::AddAssign,
-            Symbol::SubAssign,
-            Symbol::MulAssign,
-            Symbol::DivAssign,
-            Symbol::RemAssign,
-            Symbol::ChangeMin,
-            Symbol::ChangeMax,
-            Symbol::Add,
-            Symbol::Sub,
-            Symbol::Mul,
-            Symbol::Div,
-            Symbol::Rem,
-            Symbol::BitNot,
-            Symbol::BitAnd,
-            Symbol::BitXor,
-            Symbol::BitOr,
-            Symbol::Less,
-            Symbol::Greater,
-            Symbol::Not,
-            Symbol::Assign,
-            Symbol::OpenBracket,
-            Symbol::CloseBracket,
-            Symbol::OpenBrace,
-            Symbol::CloseBrace,
-            Symbol::Comma,
-            Symbol::End,
-        ]
+        let mut symbols = Symbol::iter().collect::<Vec<Symbol>>();
+        symbols.sort_by(|a, b| { (-(a.to_str().len() as isize)).cmp(&(-(b.to_str().len() as isize))) });
+        symbols
     }
 
     pub fn get_symbol_char_list() -> Vec<char> {
-        vec!['+', '-', '*', '/', '%', '=', '!', '<', '>', ':', ',', ';', '(', ')', '{', '}']
+        let mut symbols = Symbol::iter().map(|s| { s.to_str().chars().nth(0).unwrap() }).collect::<Vec<char>>();
+        symbols.sort();
+        symbols.dedup();
+        symbols
     }
 }

@@ -1,4 +1,7 @@
-#[derive(Copy, Clone, Eq, PartialEq)]
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
+#[derive(Copy, Clone, Eq, PartialEq, EnumIter)]
 pub enum Word {
     Function,
     If,
@@ -24,16 +27,7 @@ impl Word {
         }
     }
 
-    pub fn get_list() -> Vec<Self> {
-        vec![
-            Word::Function,
-            Word::If,
-            Word::For,
-            Word::While,
-            Word::Loop,
-            Word::Int,
-            Word::Float,
-            Word::String,
-        ]
+    pub fn get_list() -> Vec<Word> {
+        Word::iter().collect::<Vec<Word>>()
     }
 }
