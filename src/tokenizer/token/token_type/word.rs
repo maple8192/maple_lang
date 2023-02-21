@@ -24,7 +24,7 @@ impl Word {
         }
     }
 
-    pub fn get_len_order_list() -> Vec<Self> {
+    pub fn get_list() -> Vec<Self> {
         vec![
             Word::Function,
             Word::If,

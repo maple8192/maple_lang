@@ -67,7 +67,7 @@ fn create_word_token(target: &str) -> TokenType {
     for i in 0..target.len() {
         let c = target.chars().nth(i).unwrap();
         if c == ' ' || c == '\n' || c == '\t' || Symbol::get_reserved_char_list().contains(&c) {
-            let list = Word::get_len_order_list();
+            let list = Word::get_list();
             let reserved = list.iter().find(|reserved| word == reserved.to_str().to_string());
             return if let Some(reserved) = reserved {
                 TokenType::Word(*reserved)
