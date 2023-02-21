@@ -39,6 +39,8 @@ pub enum Symbol {
     CloseBracket,
     OpenBrace,
     CloseBrace,
+    OpenSquare,
+    CloseSquare,
     Comma,
     End,
 }
@@ -82,6 +84,8 @@ impl Symbol {
             Symbol::CloseBracket => ")",
             Symbol::OpenBrace => "{",
             Symbol::CloseBrace => "}",
+            Symbol::OpenSquare => "[",
+            Symbol::CloseSquare => "]",
             Symbol::Comma => ",",
             Symbol::End => ";",
         }
