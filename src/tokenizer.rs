@@ -33,7 +33,7 @@ pub fn tokenize(src: &str) -> Result<VecDeque<Token>, String> {
                     index += token_len;
                     pos += token_len;
                 } else {
-                    let message = format!("Unexpected Token({}:{})", line, pos);
+                    let message = format!("Undefined Token({}:{})", line, pos);
                     return Err(message);
                 }
             },
