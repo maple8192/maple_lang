@@ -45,7 +45,7 @@ pub fn tokenize(src: &str) -> Result<VecDeque<Token>, String> {
 
 fn create_token(target: &str) -> Option<TokenType> {
     let first_char = target.chars().next().unwrap();
-    if Symbol::get_reserved_char_list().contains(&first_char) {
+    if Symbol::get_symbol_char_list().contains(&first_char) {
         create_symbol_token(target)
     } else {
         Some(create_word_token(target))
@@ -66,7 +66,7 @@ fn create_word_token(target: &str) -> TokenType {
     let mut word = String::new();
     for i in 0..target.len() {
         let c = target.chars().nth(i).unwrap();
-        if c == ' ' || c == '\n' || c == '\t' || Symbol::get_reserved_char_list().contains(&c) {
+        if c == ' ' || c == '\n' || c == '\t' || Symbol::get_symbol_char_list().contains(&c) {
             let list = Word::get_list();
             let reserved = list.iter().find(|reserved| word == reserved.to_str().to_string());
             return if let Some(reserved) = reserved {

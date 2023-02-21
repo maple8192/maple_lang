@@ -127,7 +127,7 @@ impl Symbol {
         ]
     }
 
-    pub fn get_reserved_char_list() -> Vec<char> {
+    pub fn get_symbol_char_list() -> Vec<char> {
         vec!['+', '-', '*', '/', '%', '=', '!', '<', '>', ':', ',', ';', '(', ')', '{', '}']
     }
 }
