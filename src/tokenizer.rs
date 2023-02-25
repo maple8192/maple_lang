@@ -39,6 +39,8 @@ pub fn tokenize(src: &str) -> Result<Vec<Token>, String> {
         }
     }
 
+    tokens.push(Token::new(TokenType::Eof, line, pos));
+
     Ok(tokens)
 }
 
