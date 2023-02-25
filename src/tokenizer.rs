@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use crate::tokenizer::token::Token;
 use crate::tokenizer::token::token_type::symbol::Symbol;
 use crate::tokenizer::token::token_type::TokenType;
@@ -6,8 +5,8 @@ use crate::tokenizer::token::token_type::word::Word;
 
 pub mod token;
 
-pub fn tokenize(src: &str) -> Result<VecDeque<Token>, String> {
-    let mut tokens = VecDeque::new();
+pub fn tokenize(src: &str) -> Result<Vec<Token>, String> {
+    let mut tokens = Vec::new();
 
     let mut line = 0;
     let mut pos = 0;
@@ -27,7 +26,7 @@ pub fn tokenize(src: &str) -> Result<VecDeque<Token>, String> {
             _ => {
                 let new_token_type = create_token(&src[src.char_indices().nth(index).unwrap().0..]);
                 if let Some(new_token_type) = new_token_type {
-                    tokens.push_back(Token::new(new_token_type.clone(), line, pos));
+                    tokens.push(Token::new(new_token_type.clone(), line, pos));
 
                     let token_len = new_token_type.get_len();
                     index += token_len;
