@@ -22,7 +22,15 @@ pub fn tokenize(src: &str) -> Result<Vec<Token>, String> {
             ' ' | '\t' | '\r' => {
                 index += 1;
                 pos += 1;
-            }
+            },
+            '0'..='9' => {
+                let (new_token_type, len) = create_number_token(&src[src.char_indices().nth(index).unwrap().0..]);
+
+                tokens.push(Token::new(new_token_type, line, pos));
+
+                index += len;
+                pos += len;
+            },
             _ => {
                 let new_token_type = create_token(&src[src.char_indices().nth(index).unwrap().0..]);
                 if let Some(new_token_type) = new_token_type {
@@ -81,4 +89,18 @@ fn create_word_token(target: &str) -> TokenType {
     }
 
     TokenType::Ident(word)
+}
+
+fn create_number_token(target: &str) -> (TokenType, usize) {
+    let mut num_str = String::new();
+    for i in 0..target.len() {
+        let c = target.chars().nth(i).unwrap();
+        if let '0'..='9' = c {
+            num_str.push(c);
+        } else {
+            break;
+        }
+    }
+
+    (TokenType::Number(num_str.parse().unwrap()), num_str.len())
 }
