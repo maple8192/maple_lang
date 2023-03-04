@@ -9,7 +9,7 @@ pub enum TokenType {
     Symbol(Symbol),
     Word(Word),
     Ident(String),
-    Number(u64),
+    Number(i64),
     Eof,
 }
 
