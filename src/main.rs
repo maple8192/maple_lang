@@ -1,6 +1,7 @@
 mod env_args;
 mod file_reader;
 mod tokenizer;
+mod parser;
 
 use std::env;
 
@@ -21,4 +22,11 @@ fn main() {
         println!("Error occurred: {}", message);
     }
     let tokens = tokens.unwrap();
+
+    let program = parser::parse(tokens);
+    if let Err(message) = &program {
+        println!("Error occurred: {}", message);
+        return;
+    }
+    let program = program.unwrap();
 }

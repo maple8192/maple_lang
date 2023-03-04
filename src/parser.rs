@@ -1,0 +1,222 @@
+pub mod node;
+
+use crate::parser::node::binary_operator::BinaryOperator;
+use crate::parser::node::Node;
+use crate::parser::node::unary_operator::UnaryOperator;
+use crate::tokenizer::token::Token;
+use crate::tokenizer::token::token_type::symbol::Symbol;
+use crate::tokenizer::token::token_type::TokenType;
+use crate::tokenizer::token::token_type::word::Word;
+
+pub fn parse(tokens: Vec<Token>) -> Result<Node, String> {
+    program(&tokens)
+}
+
+fn program(tokens: &Vec<Token>) -> Result<Node, String> {
+    let mut pos = 0;
+
+    let mut functions = Vec::new();
+
+    while tokens[pos].typ != TokenType::Eof {
+        let function = function(tokens, &mut pos)?;
+
+        functions.push(function);
+    }
+
+    Ok(Node::Program { functions })
+}
+
+fn function(tokens: &Vec<Token>, pos: &mut usize) -> Result<Node, String> {
+    if tokens[*pos].typ == TokenType::Word(Word::Function) {
+        *pos += 1;
+        if let TokenType::Ident(function_name) = &tokens[*pos].typ {
+            *pos += 1;
+
+            let mut variables = Vec::new();
+
+            if tokens[*pos].typ == TokenType::Symbol(Symbol::OpenSquare) {
+                *pos += 1;
+
+                let mut first = true;
+                while tokens[*pos].typ != TokenType::Symbol(Symbol::CloseSquare) {
+                    if !first {
+                        if tokens[*pos].typ == TokenType::Symbol(Symbol::Comma) {
+                            *pos += 1;
+                        } else {
+                            return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+                        }
+                    }
+                    first = false;
+
+                    if let TokenType::Ident(argument_name) = &tokens[*pos].typ {
+                        *pos += 1;
+
+                        variables.push(argument_name.clone());
+                    } else {
+                        return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+                    }
+                }
+                *pos += 1;
+            }
+
+            if tokens[*pos].typ == TokenType::Symbol(Symbol::OpenBrace) {
+                *pos += 1;
+
+                let mut statements = Vec::new();
+
+                while tokens[*pos].typ != TokenType::Symbol(Symbol::CloseBrace) {
+                    let statement = statement(tokens, pos, &mut variables)?;
+
+                    statements.push(statement);
+                }
+                *pos += 1;
+
+                Ok(Node::Function { name: function_name.clone(), variables, statements })
+            } else {
+                Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+            }
+        } else {
+            Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+        }
+    } else {
+        Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+    }
+}
+
+fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let expression = expression(tokens, pos, variables)?;
+
+    if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+        *pos += 1;
+
+        Ok(Node::Statement { nodes: vec![expression] })
+    } else {
+        Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+    }
+}
+
+fn expression(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    assign(tokens, pos, variables)
+}
+
+fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let node = equality(tokens, pos, variables)?;
+
+    let operator = match tokens[*pos].typ {
+        TokenType::Symbol(Symbol::Assign) => BinaryOperator::Assign,
+        TokenType::Symbol(Symbol::AddAssign) => BinaryOperator::AddAssign,
+        TokenType::Symbol(Symbol::SubAssign) => BinaryOperator::SubAssign,
+        TokenType::Symbol(Symbol::MulAssign) => BinaryOperator::MulAssign,
+        TokenType::Symbol(Symbol::DivAssign) => BinaryOperator::DivAssign,
+        TokenType::Symbol(Symbol::RemAssign) => BinaryOperator::RemAssign,
+        TokenType::Symbol(Symbol::ChangeMin) => BinaryOperator::ChangeMin,
+        TokenType::Symbol(Symbol::ChangeMax) => BinaryOperator::ChangeMax,
+        _ => return Ok(node),
+    };
+    *pos += 1;
+
+    Ok(Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) })
+}
+
+fn equality(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = relational(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::Equal) => BinaryOperator::Equal,
+            TokenType::Symbol(Symbol::NotEqual) => BinaryOperator::NotEqual,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(relational(tokens, pos, variables)?) };
+    }
+}
+
+fn relational(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = add(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::Less) => BinaryOperator::Less,
+            TokenType::Symbol(Symbol::LessOrEqual) => BinaryOperator::LessOrEqual,
+            TokenType::Symbol(Symbol::Greater) => BinaryOperator::Greater,
+            TokenType::Symbol(Symbol::GreaterOrEqual) => BinaryOperator::GreaterOrEqual,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(add(tokens, pos, variables)?) };
+    }
+}
+
+fn add(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = mul(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::Add) => BinaryOperator::Add,
+            TokenType::Symbol(Symbol::Sub) => BinaryOperator::Sub,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(add(tokens, pos, variables)?) };
+    }
+}
+
+fn mul(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = unary(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::Mul) => BinaryOperator::Mul,
+            TokenType::Symbol(Symbol::Div) => BinaryOperator::Div,
+            TokenType::Symbol(Symbol::Rem) => BinaryOperator::Rem,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(add(tokens, pos, variables)?) };
+    }
+}
+
+fn unary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let node = primary(tokens, pos, variables)?;
+
+    Ok(if tokens[*pos].typ == TokenType::Symbol(Symbol::Sub) {
+        Node::UnaryOperator { typ: UnaryOperator::Minus, node: Box::new(node) }
+    } else {
+        node
+    })
+}
+
+fn primary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    if tokens[*pos].typ == TokenType::Symbol(Symbol::OpenBracket) {
+        *pos += 1;
+
+        let node = expression(tokens, pos, variables)?;
+
+        if tokens[*pos].typ == TokenType::Symbol(Symbol::CloseBracket) {
+            *pos += 1;
+            Ok(node)
+        } else {
+            Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+        }
+    } else if let TokenType::Ident(variable_name) = &tokens[*pos].typ {
+        *pos += 1;
+        for i in 0..variables.len() {
+            if variables[i] == *variable_name {
+                return Ok(Node::Variable { offset: i });
+            }
+        }
+        let offset = variables.len();
+        variables.push(variable_name.clone());
+        Ok(Node::Variable { offset })
+    } else if let TokenType::Number(num) = &tokens[*pos].typ {
+        *pos += 1;
+        Ok(Node::Number { num: *num })
+    } else {
+        Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+    }
+}
