@@ -100,7 +100,7 @@ fn expression(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>)
 }
 
 fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
-    let node = equality(tokens, pos, variables)?;
+    let node = or(tokens, pos, variables)?;
 
     let operator = match tokens[*pos].typ {
         TokenType::Symbol(Symbol::Assign) => BinaryOperator::Assign,
@@ -116,6 +116,76 @@ fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> 
     *pos += 1;
 
     Ok(Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) })
+}
+
+fn or(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = and(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::Or) => BinaryOperator::Or,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(and(tokens, pos, variables)?) };
+    }
+}
+
+fn and(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = bit_or(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::And) => BinaryOperator::And,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(bit_or(tokens, pos, variables)?) };
+    }
+}
+
+fn bit_or(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = bit_xor(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::BitOr) => BinaryOperator::BitOr,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(bit_xor(tokens, pos, variables)?) };
+    }
+}
+
+fn bit_xor(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = bit_and(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::BitXor) => BinaryOperator::BitXor,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(bit_and(tokens, pos, variables)?) };
+    }
+}
+
+fn bit_and(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = equality(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::BitAnd) => BinaryOperator::BitAnd,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(equality(tokens, pos, variables)?) };
+    }
 }
 
 fn equality(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
@@ -184,10 +254,11 @@ fn mul(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Res
 fn unary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
     let node = primary(tokens, pos, variables)?;
 
-    Ok(if tokens[*pos].typ == TokenType::Symbol(Symbol::Sub) {
-        Node::UnaryOperator { typ: UnaryOperator::Minus, node: Box::new(node) }
-    } else {
-        node
+    Ok(match tokens[*pos].typ {
+        TokenType::Symbol(Symbol::Sub) => Node::UnaryOperator { typ: UnaryOperator::Minus, node: Box::new(node) },
+        TokenType::Symbol(Symbol::BitNot) => Node::UnaryOperator { typ: UnaryOperator::BitNot, node: Box::new(node) },
+        TokenType::Symbol(Symbol::Not) => Node::UnaryOperator { typ: UnaryOperator::Not, node: Box::new(node) },
+        _ => node,
     })
 }
 
