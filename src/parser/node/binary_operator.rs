@@ -5,6 +5,8 @@ pub enum BinaryOperator {
     Mul,
     Div,
     Rem,
+    Power,
+    Root,
     BitAnd,
     BitXor,
     BitOr,

@@ -248,7 +248,7 @@ fn add(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Res
 }
 
 fn mul(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
-    let mut node = unary(tokens, pos, variables)?;
+    let mut node = power_root(tokens, pos, variables)?;
 
     loop {
         let operator = match tokens[*pos].typ {
@@ -259,8 +259,21 @@ fn mul(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Res
         };
         *pos += 1;
 
-        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(add(tokens, pos, variables)?) };
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(power_root(tokens, pos, variables)?) };
     }
+}
+
+fn power_root(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let node = unary(tokens, pos, variables)?;
+
+    let operator = match tokens[*pos].typ {
+        TokenType::Symbol(Symbol::Power) => BinaryOperator::Power,
+        TokenType::Symbol(Symbol::Root) => BinaryOperator::Root,
+        _ => return Ok(node),
+    };
+    *pos += 1;
+
+    Ok(Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(power_root(tokens, pos, variables)?) })
 }
 
 fn unary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
