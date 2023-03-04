@@ -252,14 +252,15 @@ fn mul(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Res
 }
 
 fn unary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
-    let node = primary(tokens, pos, variables)?;
+    let operator = match tokens[*pos].typ {
+        TokenType::Symbol(Symbol::Sub) => UnaryOperator::Minus,
+        TokenType::Symbol(Symbol::BitNot) => UnaryOperator::BitNot,
+        TokenType::Symbol(Symbol::Not) => UnaryOperator::Not,
+        _ => return primary(tokens, pos, variables),
+    };
+    *pos += 1;
 
-    Ok(match tokens[*pos].typ {
-        TokenType::Symbol(Symbol::Sub) => Node::UnaryOperator { typ: UnaryOperator::Minus, node: Box::new(node) },
-        TokenType::Symbol(Symbol::BitNot) => Node::UnaryOperator { typ: UnaryOperator::BitNot, node: Box::new(node) },
-        TokenType::Symbol(Symbol::Not) => Node::UnaryOperator { typ: UnaryOperator::Not, node: Box::new(node) },
-        _ => node,
-    })
+    Ok(Node::UnaryOperator { typ: operator, node: Box::new(primary(tokens, pos, variables)?) })
 }
 
 fn primary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
@@ -278,7 +279,14 @@ fn primary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) ->
         *pos += 1;
         for i in 0..variables.len() {
             if variables[i] == *variable_name {
-                return Ok(Node::Variable { offset: i });
+                let operator = match tokens[*pos].typ {
+                    TokenType::Symbol(Symbol::Increment) => UnaryOperator::Increment,
+                    TokenType::Symbol(Symbol::Decrement) => UnaryOperator::Decrement,
+                    _ => return Ok(Node::Variable { offset: i }),
+                };
+                *pos += 1;
+
+                return Ok(Node::UnaryOperator { typ: operator, node: Box::new(Node::Variable { offset: i }) });
             }
         }
         let offset = variables.len();
