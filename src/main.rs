@@ -29,4 +29,6 @@ fn main() {
         return;
     }
     let program = program.unwrap();
+
+    println!("{:?}", program);
 }
