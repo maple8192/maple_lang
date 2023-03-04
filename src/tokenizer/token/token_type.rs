@@ -9,6 +9,7 @@ pub enum TokenType {
     Symbol(Symbol),
     Word(Word),
     Ident(String),
+    Number(u64),
 }
 
 impl TokenType {
@@ -17,6 +18,7 @@ impl TokenType {
             TokenType::Symbol(symbol) => symbol.to_str().len(),
             TokenType::Word(word) => word.to_str().len(),
             TokenType::Ident(ident) => ident.len(),
+            TokenType::Number(num) => 0,
         }
     }
 }
