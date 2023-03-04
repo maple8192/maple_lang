@@ -96,7 +96,19 @@ fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) 
 }
 
 fn expression(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
-    assign(tokens, pos, variables)
+    exchange(tokens, pos, variables)
+}
+
+fn exchange(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let node = assign(tokens, pos, variables)?;
+
+    if tokens[*pos].typ == TokenType::Symbol(Symbol::Exchange) {
+        *pos += 1;
+
+        Ok(Node::BinaryOperator { typ: BinaryOperator::Exchange, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) })
+    } else {
+        Ok(node)
+    }
 }
 
 fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {

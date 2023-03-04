@@ -24,4 +24,5 @@ pub enum BinaryOperator {
     RemAssign,
     ChangeMin,
     ChangeMax,
+    Exchange,
 }
