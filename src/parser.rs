@@ -126,6 +126,8 @@ fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> 
         TokenType::Symbol(Symbol::AndAssign) => BinaryOperator::AndAssign,
         TokenType::Symbol(Symbol::XorAssign) => BinaryOperator::XorAssign,
         TokenType::Symbol(Symbol::OrAssign) => BinaryOperator::OrAssign,
+        TokenType::Symbol(Symbol::LShiftAssign) => BinaryOperator::LShiftAssign,
+        TokenType::Symbol(Symbol::RShiftAssign) => BinaryOperator::RShiftAssign,
         TokenType::Symbol(Symbol::ChangeMin) => BinaryOperator::ChangeMin,
         TokenType::Symbol(Symbol::ChangeMax) => BinaryOperator::ChangeMax,
         _ => return Ok(node),
@@ -221,7 +223,7 @@ fn equality(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -
 }
 
 fn relational(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
-    let mut node = add(tokens, pos, variables)?;
+    let mut node = shift(tokens, pos, variables)?;
 
     loop {
         let operator = match tokens[*pos].typ {
@@ -229,6 +231,21 @@ fn relational(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>)
             TokenType::Symbol(Symbol::LessOrEqual) => BinaryOperator::LessOrEqual,
             TokenType::Symbol(Symbol::Greater) => BinaryOperator::Greater,
             TokenType::Symbol(Symbol::GreaterOrEqual) => BinaryOperator::GreaterOrEqual,
+            _ => return Ok(node),
+        };
+        *pos += 1;
+
+        node = Node::BinaryOperator { typ: operator, lhs: Box::new(node), rhs: Box::new(shift(tokens, pos, variables)?) };
+    }
+}
+
+fn shift(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
+    let mut node = add(tokens, pos, variables)?;
+
+    loop {
+        let operator = match tokens[*pos].typ {
+            TokenType::Symbol(Symbol::LShift) => BinaryOperator::LShift,
+            TokenType::Symbol(Symbol::RShift) => BinaryOperator::RShift,
             _ => return Ok(node),
         };
         *pos += 1;
