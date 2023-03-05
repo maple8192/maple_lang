@@ -24,6 +24,8 @@ pub enum BinaryOperator {
     MulAssign,
     DivAssign,
     RemAssign,
+    PowerAssign,
+    RootAssign,
     AndAssign,
     XorAssign,
     OrAssign,
