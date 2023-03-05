@@ -121,6 +121,8 @@ fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> 
         TokenType::Symbol(Symbol::MulAssign) => BinaryOperator::MulAssign,
         TokenType::Symbol(Symbol::DivAssign) => BinaryOperator::DivAssign,
         TokenType::Symbol(Symbol::RemAssign) => BinaryOperator::RemAssign,
+        TokenType::Symbol(Symbol::PowerAssign) => BinaryOperator::PowerAssign,
+        TokenType::Symbol(Symbol::RootAssign) => BinaryOperator::RootAssign,
         TokenType::Symbol(Symbol::AndAssign) => BinaryOperator::AndAssign,
         TokenType::Symbol(Symbol::XorAssign) => BinaryOperator::XorAssign,
         TokenType::Symbol(Symbol::OrAssign) => BinaryOperator::OrAssign,
