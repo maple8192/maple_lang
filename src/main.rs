@@ -20,6 +20,7 @@ fn main() {
     let tokens = tokenizer::tokenize(&src);
     if let Err(message) = &tokens {
         println!("Error occurred: {}", message);
+        return;
     }
     let tokens = tokens.unwrap();
 
