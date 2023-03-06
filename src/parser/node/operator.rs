@@ -1,5 +1,5 @@
 #[derive(Debug, Clone)]
-pub enum BinaryOperator {
+pub enum Operator {
     Add,
     Sub,
     Mul,
@@ -13,11 +13,8 @@ pub enum BinaryOperator {
     LShift,
     RShift,
     Equal,
-    NotEqual,
     Less,
-    LessOrEqual,
     Greater,
-    GreaterOrEqual,
     And,
     Or,
     Assign,
