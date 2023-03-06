@@ -58,6 +58,8 @@ fn function(tokens: &Vec<Token>, pos: &mut usize) -> Result<Node, String> {
                 *pos += 1;
             }
 
+            let args_num = variables.len();
+
             if tokens[*pos].typ == TokenType::Symbol(Symbol::OpenBrace) {
                 *pos += 1;
 
@@ -70,7 +72,7 @@ fn function(tokens: &Vec<Token>, pos: &mut usize) -> Result<Node, String> {
                 }
                 *pos += 1;
 
-                Ok(Node::Function { name: function_name.clone(), variables, statements })
+                Ok(Node::Function { name: function_name.clone(), args_num, variables, statements })
             } else {
                 Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
             }
