@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum BinaryOperator {
     Add,
     Sub,
@@ -21,18 +21,6 @@ pub enum BinaryOperator {
     And,
     Or,
     Assign,
-    AddAssign,
-    SubAssign,
-    MulAssign,
-    DivAssign,
-    RemAssign,
-    PowerAssign,
-    RootAssign,
-    AndAssign,
-    XorAssign,
-    OrAssign,
-    LShiftAssign,
-    RShiftAssign,
     ChangeMin,
     ChangeMax,
     Exchange,

@@ -4,7 +4,7 @@ use crate::parser::node::unary_operator::UnaryOperator;
 pub mod unary_operator;
 pub mod binary_operator;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Node {
     Program { functions: Vec<Node> },
     Function { name: String, variables: Vec<String>, statements: Vec<Node> },
