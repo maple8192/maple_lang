@@ -115,7 +115,7 @@ fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> 
     let node = or(tokens, pos, variables)?;
 
     let operator = match tokens[*pos].typ {
-        TokenType::Symbol(Symbol::Assign) => return Ok(Node::BinaryOperator { typ: BinaryOperator::Assign, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }),
+        TokenType::Symbol(Symbol::Assign) => { *pos += 1; return Ok(Node::BinaryOperator { typ: BinaryOperator::Assign, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) },
         TokenType::Symbol(Symbol::AddAssign) => BinaryOperator::Add,
         TokenType::Symbol(Symbol::SubAssign) => BinaryOperator::Sub,
         TokenType::Symbol(Symbol::MulAssign) => BinaryOperator::Mul,
@@ -128,8 +128,8 @@ fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> 
         TokenType::Symbol(Symbol::OrAssign) => BinaryOperator::BitOr,
         TokenType::Symbol(Symbol::LShiftAssign) => BinaryOperator::LShift,
         TokenType::Symbol(Symbol::RShiftAssign) => BinaryOperator::RShift,
-        TokenType::Symbol(Symbol::ChangeMin) => return Ok(Node::BinaryOperator { typ: BinaryOperator::ChangeMin, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }),
-        TokenType::Symbol(Symbol::ChangeMax) => return Ok(Node::BinaryOperator { typ: BinaryOperator::ChangeMax, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }),
+        TokenType::Symbol(Symbol::ChangeMin) => { *pos += 1; return Ok(Node::BinaryOperator { typ: BinaryOperator::ChangeMin, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) },
+        TokenType::Symbol(Symbol::ChangeMax) => { *pos += 1; return Ok(Node::BinaryOperator { typ: BinaryOperator::ChangeMax, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) },
         _ => return Ok(node),
     };
     *pos += 1;
