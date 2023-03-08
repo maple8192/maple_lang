@@ -15,8 +15,6 @@ pub enum Operator {
     Equal,
     Less,
     Greater,
-    And,
-    Or,
     Assign,
     ChangeMin,
     ChangeMax,

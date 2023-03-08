@@ -155,8 +155,6 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, last_index: &mut usize) -> Resu
                     stack.push_back(*last_index);
                     *last_index += 1;
                 },
-                Operator::And => (),
-                Operator::Or => (),
                 Operator::Assign => {
                     if let Node::Variable { offset } = lhs.as_ref() {
                         code.push_str(&gen(rhs.as_ref(), stack, last_index)?);
