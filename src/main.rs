@@ -2,6 +2,7 @@ mod env_args;
 mod file_reader;
 mod tokenizer;
 mod parser;
+mod llvm_generator;
 
 use std::env;
 
@@ -31,5 +32,12 @@ fn main() {
     }
     let program = program.unwrap();
 
-    println!("{:?}", program);
+    let llvm = llvm_generator::generate(program);
+    if let Err(message) = &llvm {
+        println!("Error occurred: {}", message);
+        return;
+    }
+    let llvm = llvm.unwrap();
+
+    println!("{}", llvm);
 }
