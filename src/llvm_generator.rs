@@ -93,27 +93,27 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, last_index: &mut usize) -> Resu
                 },
                 Operator::Power => (),
                 Operator::Root => (),
-                Operator::BitAnd => {
+                Operator::And => {
                     code.push_str(&gen(rhs.as_ref(), stack, last_index)?);
                     code.push_str(&gen(lhs.as_ref(), stack, last_index)?);
                     code.push_str(&format!("  %{} = and i64 %{}, %{}\n", last_index, stack.pop_back().unwrap(), stack.pop_back().unwrap()));
                     stack.push_back(*last_index);
                     *last_index += 1;
-                },
-                Operator::BitXor => {
+                }
+                Operator::Xor => {
                     code.push_str(&gen(rhs.as_ref(), stack, last_index)?);
                     code.push_str(&gen(lhs.as_ref(), stack, last_index)?);
                     code.push_str(&format!("  %{} = xor i64 %{}, %{}\n", last_index, stack.pop_back().unwrap(), stack.pop_back().unwrap()));
                     stack.push_back(*last_index);
                     *last_index += 1;
-                },
-                Operator::BitOr => {
+                }
+                Operator::Or => {
                     code.push_str(&gen(rhs.as_ref(), stack, last_index)?);
                     code.push_str(&gen(lhs.as_ref(), stack, last_index)?);
                     code.push_str(&format!("  %{} = or i64 %{}, %{}\n", last_index, stack.pop_back().unwrap(), stack.pop_back().unwrap()));
                     stack.push_back(*last_index);
                     *last_index += 1;
-                },
+                }
                 Operator::LShift => {
                     code.push_str(&gen(rhs.as_ref(), stack, last_index)?);
                     code.push_str(&gen(lhs.as_ref(), stack, last_index)?);

@@ -121,9 +121,9 @@ fn assign(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> 
         TokenType::Symbol(Symbol::RemAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::Rem, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
         TokenType::Symbol(Symbol::PowerAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::Power, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
         TokenType::Symbol(Symbol::RootAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::Root, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
-        TokenType::Symbol(Symbol::AndAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::BitAnd, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
-        TokenType::Symbol(Symbol::XorAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::BitXor, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
-        TokenType::Symbol(Symbol::OrAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::BitOr, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
+        TokenType::Symbol(Symbol::AndAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::And, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
+        TokenType::Symbol(Symbol::XorAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::Xor, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
+        TokenType::Symbol(Symbol::OrAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::Or, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
         TokenType::Symbol(Symbol::LShiftAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::LShift, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
         TokenType::Symbol(Symbol::RShiftAssign) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(node.clone()), rhs: Box::new(Node::Operator { typ: Operator::RShift, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) }) } },
         TokenType::Symbol(Symbol::ChangeMin) => { *pos += 1; Node::Operator { typ: Operator::ChangeMin, lhs: Box::new(node), rhs: Box::new(assign(tokens, pos, variables)?) } },
@@ -137,7 +137,7 @@ fn or(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Resu
 
     loop {
         node = match tokens[*pos].typ {
-            TokenType::Symbol(Symbol::Or) => { *pos += 1; Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0}), rhs: Box::new(Node::Operator { typ: Operator::BitOr, lhs: Box::new(node), rhs: Box::new(and(tokens, pos, variables)?) }) }) } },
+            TokenType::Symbol(Symbol::Or) => { *pos += 1; Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0}), rhs: Box::new(Node::Operator { typ: Operator::Or, lhs: Box::new(node), rhs: Box::new(and(tokens, pos, variables)?) }) }) } },
             _ => return Ok(node),
         }
     }
@@ -148,7 +148,7 @@ fn and(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Res
 
     loop {
         node = match tokens[*pos].typ {
-            TokenType::Symbol(Symbol::And) => { *pos += 1; Node::Operator { typ: Operator::BitAnd, lhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(node) }) }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(bit_or(tokens, pos, variables)?) }) }) } },
+            TokenType::Symbol(Symbol::And) => { *pos += 1; Node::Operator { typ: Operator::And, lhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(node) }) }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(bit_or(tokens, pos, variables)?) }) }) } },
             _ => return Ok(node),
         }
     }
@@ -159,7 +159,7 @@ fn bit_or(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> 
 
     loop {
         node = match tokens[*pos].typ {
-            TokenType::Symbol(Symbol::BitOr) => { *pos += 1; Node::Operator { typ: Operator::BitOr, lhs: Box::new(node), rhs: Box::new(bit_xor(tokens, pos, variables)?) } },
+            TokenType::Symbol(Symbol::BitOr) => { *pos += 1; Node::Operator { typ: Operator::Or, lhs: Box::new(node), rhs: Box::new(bit_xor(tokens, pos, variables)?) } },
             _ => return Ok(node),
         }
     }
@@ -170,7 +170,7 @@ fn bit_xor(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) ->
 
     loop {
         node = match tokens[*pos].typ {
-            TokenType::Symbol(Symbol::BitXor) => { *pos += 1; Node::Operator { typ: Operator::BitXor, lhs: Box::new(node), rhs: Box::new(bit_and(tokens, pos, variables)?) } },
+            TokenType::Symbol(Symbol::BitXor) => { *pos += 1; Node::Operator { typ: Operator::Xor, lhs: Box::new(node), rhs: Box::new(bit_and(tokens, pos, variables)?) } },
             _ => return Ok(node),
         }
     }
@@ -181,7 +181,7 @@ fn bit_and(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) ->
 
     loop {
         node = match tokens[*pos].typ {
-            TokenType::Symbol(Symbol::BitAnd) => { *pos += 1; Node::Operator { typ: Operator::BitAnd, lhs: Box::new(node), rhs: Box::new(equality(tokens, pos, variables)?) } },
+            TokenType::Symbol(Symbol::BitAnd) => { *pos += 1; Node::Operator { typ: Operator::And, lhs: Box::new(node), rhs: Box::new(equality(tokens, pos, variables)?) } },
             _ => return Ok(node),
         }
     }
@@ -263,7 +263,7 @@ fn power_root(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>)
 fn unary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
     Ok(match tokens[*pos].typ {
         TokenType::Symbol(Symbol::Sub) => { *pos += 1; Node::Operator { typ: Operator::Sub, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(primary(tokens, pos, variables)?) } },
-        TokenType::Symbol(Symbol::BitNot) => { *pos += 1; Node::Operator { typ: Operator::BitXor, lhs: Box::new(Node::Number { num: -1 }), rhs: Box::new(primary(tokens, pos, variables)?) } },
+        TokenType::Symbol(Symbol::BitNot) => { *pos += 1; Node::Operator { typ: Operator::Xor, lhs: Box::new(Node::Number { num: -1 }), rhs: Box::new(primary(tokens, pos, variables)?) } },
         TokenType::Symbol(Symbol::Not) => { *pos += 1; Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(primary(tokens, pos, variables)?) } },
         _ => primary(tokens, pos, variables)?,
     })
