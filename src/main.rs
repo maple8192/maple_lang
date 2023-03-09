@@ -3,6 +3,7 @@ mod file_reader;
 mod tokenizer;
 mod parser;
 mod llvm_generator;
+mod file_writer;
 
 use std::env;
 
@@ -39,5 +40,6 @@ fn main() {
     }
     let llvm = llvm.unwrap();
 
-    println!("{}", llvm);
+    let res_path = args[2].clone();
+    file_writer::write(res_path, llvm);
 }

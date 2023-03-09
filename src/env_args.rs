@@ -8,7 +8,7 @@ pub fn check_args(args: &Vec<String>) -> Option<String> {
 }
 
 fn check_len(args: &Vec<String>) -> bool {
-    args.len() >= 2
+    args.len() >= 3
 }
 
 fn check_source_path(str: &String) -> bool {
