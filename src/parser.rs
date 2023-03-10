@@ -100,6 +100,14 @@ fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) 
         };
 
         Ok(Node::If { condition: Box::new(condition), true_case: Box::new(true_case), false_case: Box::new(false_case) })
+    } else if tokens[*pos].typ == TokenType::Word(Word::While) {
+        *pos += 1;
+
+        let condition = expression(tokens, pos, variables)?;
+
+        let statement = statement(tokens, pos, variables)?;
+
+        Ok(Node::While { condition: Box::new(condition), node: Box::new(statement) })
     } else {
         let expression = expression(tokens, pos, variables)?;
 
