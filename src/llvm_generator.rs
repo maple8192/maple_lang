@@ -38,14 +38,17 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
         Node::Function { name, args_num, variables, statements } => {
             code.push_str(&format!("define i64 @{}(", name));
 
-            let mut first = true;
-            for _ in 0..*args_num {
-                code.push_str(&format!("{}i64", if first { "" } else { ", " }));
-                first = false;
+            for i in 0..*args_num {
+                code.push_str(&format!("{}i64 %{}", if i == 0 { "" } else { ", " }, variables[i]));
             }
 
             code.push_str(") {\n");
             code.push_str("entry:\n");
+
+            for i in 0..*args_num {
+                code.push_str(&format!("  %{} = alloca i64\n", i));
+                code.push_str(&format!("  store i64 %{}, i64* %{}\n", variables[i], i));
+            }
 
             for i in *args_num..variables.len() {
                 code.push_str(&format!("  %{} = alloca i64\n", i));
