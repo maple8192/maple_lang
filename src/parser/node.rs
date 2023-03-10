@@ -5,7 +5,7 @@ pub mod operator;
 #[derive(Debug, Clone)]
 pub enum Node {
     Program { functions: Vec<Node> },
-    Function { name: String, args_num: usize, variables: Vec<String>, statements: Vec<Node> },
+    Function { name: String, args_num: usize, variables: Vec<String>, statement: Box<Node> },
     Statement { nodes: Vec<Node> },
     Return { node: Box<Node> },
     If { condition: Box<Node>, true_case: Box<Node>, false_case: Box<Option<Node>> },
