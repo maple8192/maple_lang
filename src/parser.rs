@@ -85,14 +85,32 @@ fn function(tokens: &Vec<Token>, pos: &mut usize) -> Result<Node, String> {
 }
 
 fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
-    let expression = expression(tokens, pos, variables)?;
-
-    if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+    if tokens[*pos].typ == TokenType::Word(Word::If) {
         *pos += 1;
 
-        Ok(Node::Statement { nodes: vec![expression] })
+        let condition = expression(tokens, pos, variables)?;
+
+        let true_case = statement(tokens, pos, variables)?;
+
+        let false_case = if tokens[*pos].typ == TokenType::Word(Word::Else) {
+            *pos += 1;
+
+            Some(statement(tokens, pos, variables)?)
+        } else {
+            None
+        };
+
+        Ok(Node::If { condition: Box::new(condition), true_case: Box::new(true_case), false_case: Box::new(false_case) })
     } else {
-        Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+        let expression = expression(tokens, pos, variables)?;
+
+        if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+            *pos += 1;
+
+            Ok(Node::Statement { nodes: vec![expression] })
+        } else {
+            Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
+        }
     }
 }
 

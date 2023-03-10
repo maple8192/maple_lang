@@ -5,6 +5,7 @@ use strum_macros::EnumIter;
 pub enum Word {
     Function,
     If,
+    Else,
     For,
     While,
     Loop,
@@ -18,6 +19,7 @@ impl Word {
         match self {
             Word::Function => "fn",
             Word::If => "if",
+            Word::Else => "else",
             Word::For => "for",
             Word::While => "while",
             Word::Loop => "loop",
