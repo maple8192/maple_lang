@@ -88,6 +88,20 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
             code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
             code.push_str(&format!("ifend{}:\n", *last_label - 1));
         },
+        Node::While { condition, node } => {
+            let label = *last_label;
+            *last_label += 1;
+            code.push_str(&format!("  br label %whilebegin{}\n", label));
+            code.push_str(&format!("whilebegin{}:\n", label));
+            code.push_str(&gen(condition, stack, functions, last_index, last_label)?);
+            code.push_str(&format!("  %{} = icmp ne i64 %{}, 0\n", last_index, stack.pop_back().unwrap()));
+            *last_index += 1;
+            code.push_str(&format!("  br i1 %{}, label %whilethen{}, label %whileend{}\n", *last_index - 1, label, label));
+            code.push_str(&format!("whilethen{}:\n", label));
+            code.push_str(&gen(node, stack, functions, last_index, last_label)?);
+            code.push_str(&format!("  br label %whilebegin{}\n", label));
+            code.push_str(&format!("whileend{}:", label));
+        },
         Node::Operator { typ, lhs, rhs } => {
             match typ {
                 Operator::Add => {
