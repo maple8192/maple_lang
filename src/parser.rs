@@ -108,6 +108,10 @@ fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) 
             *pos += 1;
 
             Ok(Node::Statement { nodes: vec![expression] })
+        } else if tokens[*pos].typ == TokenType::Symbol(Symbol::Return) {
+            *pos += 1;
+
+            Ok(Node::Return { node: Box::new(expression) })
         } else {
             Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
         }
