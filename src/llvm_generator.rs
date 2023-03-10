@@ -186,8 +186,48 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, last_index: &mut usize, last_la
                         return Err(format!("Not a variable"));
                     }
                 },
-                Operator::ChangeMin => (),
-                Operator::ChangeMax => (),
+                Operator::ChangeMin => {
+                    if let Node::Variable { offset } = lhs.as_ref() {
+                        code.push_str(&gen(rhs.as_ref(), stack, last_index, last_label)?);
+                        code.push_str(&format!("  %{} = load i64, i64* %{}\n", last_index, offset));
+                        *last_index += 1;
+                        let ch_ptr = stack.pop_back().unwrap();
+                        code.push_str(&format!("  %{} = icmp sgt i64 %{}, %{}\n", last_index, *last_index - 1, ch_ptr));
+                        *last_index += 1;
+                        *last_label += 1;
+                        code.push_str(&format!("  br i1 %{}, label %ifthen{}, label %ifend{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
+                        code.push_str(&format!("ifthen{}:\n", *last_label - 1));
+                        code.push_str(&format!("  store i64 %{}, i64* %{}\n", ch_ptr, offset));
+                        code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
+                        code.push_str(&format!("ifend{}:\n", *last_label - 1));
+                        code.push_str(&format!("  %{} = load i64, i64* %{}\n", last_index, offset));
+                        stack.push_back(*last_index);
+                        *last_index += 1;
+                    } else {
+                        return Err(format!("Not a variable"));
+                    }
+                },
+                Operator::ChangeMax => {
+                    if let Node::Variable { offset } = lhs.as_ref() {
+                        code.push_str(&gen(rhs.as_ref(), stack, last_index, last_label)?);
+                        code.push_str(&format!("  %{} = load i64, i64* %{}\n", last_index, offset));
+                        *last_index += 1;
+                        let ch_ptr = stack.pop_back().unwrap();
+                        code.push_str(&format!("  %{} = icmp slt i64 %{}, %{}\n", last_index, *last_index - 1, ch_ptr));
+                        *last_index += 1;
+                        *last_label += 1;
+                        code.push_str(&format!("  br i1 %{}, label %ifthen{}, label %ifend{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
+                        code.push_str(&format!("ifthen{}:\n", *last_label - 1));
+                        code.push_str(&format!("  store i64 %{}, i64* %{}\n", ch_ptr, offset));
+                        code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
+                        code.push_str(&format!("ifend{}:\n", *last_label - 1));
+                        code.push_str(&format!("  %{} = load i64, i64* %{}\n", last_index, offset));
+                        stack.push_back(*last_index);
+                        *last_index += 1;
+                    } else {
+                        return Err(format!("Not a variable"));
+                    }
+                },
                 Operator::Exchange => {
                     if let Node::Variable { offset: ol } = lhs.as_ref() {
                         if let Node::Variable { offset: or } = rhs.as_ref() {
