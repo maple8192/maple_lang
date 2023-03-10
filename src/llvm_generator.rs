@@ -8,7 +8,7 @@ pub fn generate(program: Node) -> Result<String, String> {
 
         let mut function_info = Vec::new();
         for function in &functions {
-            if let Node::Function { name, args_num, variables: _, statements: _ } = function {
+            if let Node::Function { name, args_num, variables: _, statement: _ } = function {
                 function_info.push((name.clone(), *args_num))
             } else {
                 return Err(format!("Not a function"));
@@ -35,7 +35,7 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
         Node::Program { functions: _ } => {
             return Err(format!("Error"));
         },
-        Node::Function { name, args_num, variables, statements } => {
+        Node::Function { name, args_num, variables, statement } => {
             code.push_str(&format!("define i64 @{}(", name));
 
             for i in 0..*args_num {
@@ -57,9 +57,7 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
 
             *last_index += variables.len();
 
-            for s in statements {
-                code.push_str(&gen(s, stack, functions, last_index, last_label)?);
-            }
+            code.push_str(&gen(statement, stack, functions, last_index, last_label)?);
 
             code.push_str(&format!("  ret i64 0\n"));
             code.push_str("}\n");
