@@ -61,14 +61,18 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
                 code.push_str(&gen(s, stack, functions, last_index, last_label)?);
             }
 
-            code.push_str(&format!("  ret i64 %{}\n", stack.pop_back().unwrap()));
+            code.push_str(&format!("  ret i64 0\n"));
             code.push_str("}\n");
         },
         Node::Statement { nodes } => {
             for i in 0..nodes.len() {
                 code.push_str(&gen(&nodes[i], stack, functions, last_index, last_label)?);
-                if i != nodes.len() - 1 { stack.pop_back(); }
+                stack.pop_back();
             }
+        },
+        Node::Return { node } => {
+            code.push_str(&gen(node.as_ref(), stack, functions, last_index, last_label)?);
+            code.push_str(&format!("  ret i64 %{}\n", stack.pop_back().unwrap()));
         },
         Node::If { condition, true_case, false_case } => {
             code.push_str(&gen(condition.as_ref(), stack, functions, last_index, last_label)?);
