@@ -85,7 +85,19 @@ fn function(tokens: &Vec<Token>, pos: &mut usize) -> Result<Node, String> {
 }
 
 fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) -> Result<Node, String> {
-    if tokens[*pos].typ == TokenType::Word(Word::If) {
+    if tokens[*pos].typ == TokenType::Symbol(Symbol::OpenBrace) {
+        *pos += 1;
+
+        let mut nodes = Vec::new();
+
+        while tokens[*pos].typ != TokenType::Symbol(Symbol::CloseBrace) {
+            let statement = statement(tokens, pos, variables)?;
+            nodes.push(statement);
+        }
+        *pos += 1;
+
+        Ok(Node::Statement { nodes })
+    } else if tokens[*pos].typ == TokenType::Word(Word::If) {
         *pos += 1;
 
         let condition = expression(tokens, pos, variables)?;
