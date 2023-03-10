@@ -10,5 +10,6 @@ pub enum Node {
     If { condition: Box<Node>, true_case: Box<Node>, false_case: Box<Option<Node>> },
     Operator { typ: Operator, lhs: Box<Node>, rhs: Box<Node> },
     Variable { offset: usize },
+    FuncCall { function_name: String, arguments: Vec<Node> },
     Number { num: i64 }
 }

@@ -299,20 +299,45 @@ fn primary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) ->
         } else {
             Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos))
         }
-    } else if let TokenType::Ident(variable_name) = &tokens[*pos].typ {
+    } else if let TokenType::Ident(ident_name) = &tokens[*pos].typ {
         *pos += 1;
-        for i in 0..variables.len() {
-            if variables[i] == *variable_name {
-                return Ok(match tokens[*pos].typ {
-                    TokenType::Symbol(Symbol::Increment) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Operator { typ: Operator::Add, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Number { num: 1 }) }) } },
-                    TokenType::Symbol(Symbol::Decrement) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Operator { typ: Operator::Sub, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Number { num: 1 }) }) } },
-                    _ => Node::Variable { offset: i },
-                });
+
+        if tokens[*pos].typ == TokenType::Symbol(Symbol::OpenBracket) {
+            *pos += 1;
+
+            let mut arguments = Vec::new();
+
+            let mut first = true;
+            while tokens[*pos].typ != TokenType::Symbol(Symbol::CloseBracket) {
+                if !first {
+                    if tokens[*pos].typ == TokenType::Symbol(Symbol::Comma) {
+                        *pos += 1;
+                    } else {
+                        return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+                    }
+                }
+                first = false;
+
+                let expr = expression(tokens, pos, variables)?;
+                arguments.push(expr);
             }
+            *pos += 1;
+
+            Ok(Node::FuncCall { function_name: ident_name.clone(), arguments })
+        } else {
+            for i in 0..variables.len() {
+                if variables[i] == *ident_name {
+                    return Ok(match tokens[*pos].typ {
+                        TokenType::Symbol(Symbol::Increment) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Operator { typ: Operator::Add, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Number { num: 1 }) }) } },
+                        TokenType::Symbol(Symbol::Decrement) => { *pos += 1; Node::Operator { typ: Operator::Assign, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Operator { typ: Operator::Sub, lhs: Box::new(Node::Variable { offset: i }), rhs: Box::new(Node::Number { num: 1 }) }) } },
+                        _ => Node::Variable { offset: i },
+                    });
+                }
+            }
+            let offset = variables.len();
+            variables.push(ident_name.clone());
+            Ok(Node::Variable { offset })
         }
-        let offset = variables.len();
-        variables.push(variable_name.clone());
-        Ok(Node::Variable { offset })
     } else if let TokenType::Number(num) = &tokens[*pos].typ {
         *pos += 1;
         Ok(Node::Number { num: *num })
