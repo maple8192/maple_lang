@@ -9,6 +9,7 @@ pub enum Node {
     Statement { nodes: Vec<Node> },
     Return { node: Box<Node> },
     If { condition: Box<Node>, true_case: Box<Node>, false_case: Box<Option<Node>> },
+    While { condition: Box<Node>, node: Box<Node> },
     Operator { typ: Operator, lhs: Box<Node>, rhs: Box<Node> },
     Variable { offset: usize },
     FuncCall { function_name: String, arguments: Vec<Node> },
