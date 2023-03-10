@@ -50,6 +50,7 @@ pub enum Symbol {
     OpenSquare,
     CloseSquare,
     Comma,
+    Return,
     End,
 }
 
@@ -103,6 +104,7 @@ impl Symbol {
             Symbol::OpenSquare => "[",
             Symbol::CloseSquare => "]",
             Symbol::Comma => ",",
+            Symbol::Return => "@",
             Symbol::End => ";",
         }
     }
