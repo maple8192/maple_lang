@@ -65,7 +65,7 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
         Node::Statement { nodes } => {
             for i in 0..nodes.len() {
                 code.push_str(&gen(&nodes[i], stack, functions, last_index, last_label)?);
-                stack.pop_back();
+                stack.pop_back().unwrap();
             }
         },
         Node::Return { node } => {
