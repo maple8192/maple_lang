@@ -74,6 +74,7 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
         Node::Return { node } => {
             code.push_str(&gen(node.as_ref(), stack, functions, last_index, last_label)?);
             code.push_str(&format!("  ret i64 %{}\n", stack.pop_back().unwrap()));
+            *last_index += 1;
         },
         Node::If { condition, true_case, false_case } => {
             code.push_str(&gen(condition.as_ref(), stack, functions, last_index, last_label)?);
