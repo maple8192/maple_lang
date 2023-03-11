@@ -6,7 +6,8 @@ pub mod operator;
 pub enum Node {
     Program { functions: Vec<Node> },
     Function { name: String, args_num: usize, variables: Vec<String>, statement: Box<Node> },
-    Statement { nodes: Vec<Node> },
+    Statement { node: Box<Node> },
+    Block { statements: Vec<Node> },
     Return { node: Box<Node> },
     If { condition: Box<Node>, true_case: Box<Node>, false_case: Box<Option<Node>> },
     While { condition: Box<Node>, node: Box<Node> },
