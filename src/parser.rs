@@ -273,8 +273,8 @@ fn relational(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>)
     loop {
         node = match tokens[*pos].typ {
             TokenType::Symbol(Symbol::Less) => { *pos += 1; Node::Operator { typ: Operator::Less, lhs: Box::new(node), rhs: Box::new(shift(tokens, pos, variables)?) } },
-            TokenType::Symbol(Symbol::LessOrEqual) => { *pos += 1; Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Greater, lhs: Box::new(node), rhs: Box::new(shift(tokens, pos, variables)?) }) } },
-            TokenType::Symbol(Symbol::Greater) => { *pos += 1; Node::Operator { typ: Operator::Greater, lhs: Box::new(node), rhs: Box::new(shift(tokens, pos, variables)?) } },
+            TokenType::Symbol(Symbol::LessOrEqual) => { *pos += 1; Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Less, lhs: Box::new(shift(tokens, pos, variables)?), rhs: Box::new(node) }) } },
+            TokenType::Symbol(Symbol::Greater) => { *pos += 1; Node::Operator { typ: Operator::Less, lhs: Box::new(shift(tokens, pos, variables)?), rhs: Box::new(node) } },
             TokenType::Symbol(Symbol::GreaterOrEqual) => { *pos += 1; Node::Operator { typ: Operator::Equal, lhs: Box::new(Node::Number { num: 0 }), rhs: Box::new(Node::Operator { typ: Operator::Less, lhs: Box::new(node), rhs: Box::new(shift(tokens, pos, variables)?) }) } },
             _ => return Ok(node),
         };

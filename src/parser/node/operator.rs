@@ -14,7 +14,6 @@ pub enum Operator {
     RShift,
     Equal,
     Less,
-    Greater,
     Assign,
     ChangeMin,
     ChangeMax,

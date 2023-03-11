@@ -222,15 +222,6 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
                     stack.push_back(*last_index);
                     *last_index += 1;
                 },
-                Operator::Greater => {
-                    code.push_str(&gen(rhs.as_ref(), stack, functions, last_index, last_label)?);
-                    code.push_str(&gen(lhs.as_ref(), stack, functions, last_index, last_label)?);
-                    code.push_str(&format!("  %{} = icmp sgt i64 %{}, %{}\n", last_index, stack.pop_back().unwrap(), stack.pop_back().unwrap()));
-                    *last_index += 1;
-                    code.push_str(&format!("  %{} = zext i1 %{} to i64\n", last_index, *last_index - 1));
-                    stack.push_back(*last_index);
-                    *last_index += 1;
-                },
                 Operator::Assign => {
                     if let Node::Variable { offset } = lhs.as_ref() {
                         code.push_str(&gen(rhs.as_ref(), stack, functions, last_index, last_label)?);
