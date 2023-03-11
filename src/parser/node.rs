@@ -10,6 +10,7 @@ pub enum Node {
     Block { statements: Vec<Node> },
     Return { node: Box<Node> },
     If { condition: Box<Node>, true_case: Box<Node>, false_case: Box<Option<Node>> },
+    For { init: Box<Option<Node>>, condition: Box<Option<Node>>, update: Box<Option<Node>>, statement: Box<Node> },
     While { condition: Box<Node>, node: Box<Node> },
     Operator { typ: Operator, lhs: Box<Node>, rhs: Box<Node> },
     Variable { offset: usize },

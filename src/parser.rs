@@ -100,6 +100,45 @@ fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) 
         };
 
         Ok(Node::If { condition: Box::new(condition), true_case: Box::new(true_case), false_case: Box::new(false_case) })
+    } else if tokens[*pos].typ == TokenType::Word(Word::For) {
+        *pos += 1;
+
+        let init = if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+            None
+        } else {
+            Some(expression(tokens, pos, variables)?)
+        };
+        if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+            *pos += 1;
+        } else {
+            return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+        }
+
+        let condition = if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+            None
+        } else {
+            Some(expression(tokens, pos, variables)?)
+        };
+        if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+            *pos += 1;
+        } else {
+            return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+        }
+
+        let update = if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+            None
+        } else {
+            Some(expression(tokens, pos, variables)?)
+        };
+        if tokens[*pos].typ == TokenType::Symbol(Symbol::End) {
+            *pos += 1;
+        } else {
+            return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+        }
+
+        let statement = statement(tokens, pos, variables)?
+
+        Ok(Node::For { init: Box::new(init), condition: Box::new(condition), update: Box::new(update), statement: Box::new(statement) })
     } else if tokens[*pos].typ == TokenType::Word(Word::While) {
         *pos += 1;
 
