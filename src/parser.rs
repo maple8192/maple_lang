@@ -136,7 +136,7 @@ fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) 
             return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
         }
 
-        let statement = statement(tokens, pos, variables)?
+        let statement = statement(tokens, pos, variables)?;
 
         Ok(Node::For { init: Box::new(init), condition: Box::new(condition), update: Box::new(update), statement: Box::new(statement) })
     } else if tokens[*pos].typ == TokenType::Word(Word::While) {
