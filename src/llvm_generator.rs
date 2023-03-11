@@ -101,6 +101,7 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
             *last_label += 1;
             if let Some(init) = init.as_ref() {
                 code.push_str(&gen(init, stack, functions, last_index, last_label)?);
+                stack.pop_back().unwrap();
             }
             code.push_str(&format!("  br label %begin{}\n", label));
             code.push_str(&format!("begin{}:\n", label));
@@ -116,6 +117,7 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
             code.push_str(&gen(statement.as_ref(), stack, functions, last_index, last_label)?);
             if let Some(update) = update.as_ref() {
                 code.push_str(&gen(update, stack, functions, last_index, last_label)?);
+                stack.pop_back().unwrap();
             }
             code.push_str(&format!("  br label %begin{}\n", label));
             code.push_str(&format!("end{}:\n", label));
