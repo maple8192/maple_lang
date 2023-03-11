@@ -92,6 +92,30 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
             code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
             code.push_str(&format!("ifend{}:\n", *last_label - 1));
         },
+        Node::For { init, condition, update, statement } => {
+            let label = *last_label;
+            *last_label += 1;
+            if let Some(init) = init.as_ref() {
+                code.push_str(&gen(init, stack, functions, last_index, last_label)?);
+            }
+            code.push_str(&format!("  br label %forbegin{}\n", label));
+            code.push_str(&format!("forbegin{}:\n", label));
+            if let Some(condition) = condition.as_ref() {
+                code.push_str(&gen(condition, stack, functions, last_index, last_label)?);
+                code.push_str(&format!("  %{} = icmp ne i64 %{}, 0\n", last_index, stack.pop_back().unwrap()));
+                code.push_str(&format!("  br i1 %{}, label %forthen{}, label %forend{}\n", *last_index, label, label));
+                *last_index += 1;
+            } else {
+                code.push_str(&format!("  br label %forthen{}\n", label));
+            }
+            code.push_str(&format!("forthen{}:\n", label));
+            code.push_str(&gen(statement.as_ref(), stack, functions, last_index, last_label)?);
+            if let Some(update) = update.as_ref() {
+                code.push_str(&gen(update, stack, functions, last_index, last_label)?);
+            }
+            code.push_str(&format!("  br label %forbegin{}\n", label));
+            code.push_str(&format!("forend{}:\n", label));
+        },
         Node::While { condition, node } => {
             let label = *last_label;
             *last_label += 1;
