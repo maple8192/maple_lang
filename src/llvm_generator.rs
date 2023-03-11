@@ -81,16 +81,16 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
             code.push_str(&format!("  %{} = icmp ne i64 %{}, 0\n", last_index, stack.pop_back().unwrap()));
             *last_index += 1;
             *last_label += 1;
-            code.push_str(&format!("  br i1 %{}, label %ifthen{}, label %ifelse{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
-            code.push_str(&format!("ifthen{}:\n", *last_label - 1));
+            code.push_str(&format!("  br i1 %{}, label %then{}, label %else{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
+            code.push_str(&format!("then{}:\n", *last_label - 1));
             code.push_str(&gen(true_case.as_ref(), stack, functions, last_index, last_label)?);
-            code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
-            code.push_str(&format!("ifelse{}:\n", *last_label - 1));
+            code.push_str(&format!("  br label %end{}\n", *last_label - 1));
+            code.push_str(&format!("else{}:\n", *last_label - 1));
             if let Some(false_case) = false_case.as_ref() {
                 code.push_str(&gen(false_case, stack, functions, last_index, last_label)?);
             }
-            code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
-            code.push_str(&format!("ifend{}:\n", *last_label - 1));
+            code.push_str(&format!("  br label %end{}\n", *last_label - 1));
+            code.push_str(&format!("end{}:\n", *last_label - 1));
         },
         Node::For { init, condition, update, statement } => {
             let label = *last_label;
@@ -98,37 +98,37 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
             if let Some(init) = init.as_ref() {
                 code.push_str(&gen(init, stack, functions, last_index, last_label)?);
             }
-            code.push_str(&format!("  br label %forbegin{}\n", label));
-            code.push_str(&format!("forbegin{}:\n", label));
+            code.push_str(&format!("  br label %begin{}\n", label));
+            code.push_str(&format!("begin{}:\n", label));
             if let Some(condition) = condition.as_ref() {
                 code.push_str(&gen(condition, stack, functions, last_index, last_label)?);
                 code.push_str(&format!("  %{} = icmp ne i64 %{}, 0\n", last_index, stack.pop_back().unwrap()));
-                code.push_str(&format!("  br i1 %{}, label %forthen{}, label %forend{}\n", *last_index, label, label));
+                code.push_str(&format!("  br i1 %{}, label %then{}, label %end{}\n", *last_index, label, label));
                 *last_index += 1;
             } else {
-                code.push_str(&format!("  br label %forthen{}\n", label));
+                code.push_str(&format!("  br label %then{}\n", label));
             }
-            code.push_str(&format!("forthen{}:\n", label));
+            code.push_str(&format!("then{}:\n", label));
             code.push_str(&gen(statement.as_ref(), stack, functions, last_index, last_label)?);
             if let Some(update) = update.as_ref() {
                 code.push_str(&gen(update, stack, functions, last_index, last_label)?);
             }
-            code.push_str(&format!("  br label %forbegin{}\n", label));
-            code.push_str(&format!("forend{}:\n", label));
+            code.push_str(&format!("  br label %begin{}\n", label));
+            code.push_str(&format!("end{}:\n", label));
         },
         Node::While { condition, node } => {
             let label = *last_label;
             *last_label += 1;
-            code.push_str(&format!("  br label %whilebegin{}\n", label));
-            code.push_str(&format!("whilebegin{}:\n", label));
+            code.push_str(&format!("  br label %begin{}\n", label));
+            code.push_str(&format!("begin{}:\n", label));
             code.push_str(&gen(condition, stack, functions, last_index, last_label)?);
             code.push_str(&format!("  %{} = icmp ne i64 %{}, 0\n", last_index, stack.pop_back().unwrap()));
             *last_index += 1;
-            code.push_str(&format!("  br i1 %{}, label %whilethen{}, label %whileend{}\n", *last_index - 1, label, label));
-            code.push_str(&format!("whilethen{}:\n", label));
+            code.push_str(&format!("  br i1 %{}, label %then{}, label %end{}\n", *last_index - 1, label, label));
+            code.push_str(&format!("then{}:\n", label));
             code.push_str(&gen(node, stack, functions, last_index, last_label)?);
-            code.push_str(&format!("  br label %whilebegin{}\n", label));
-            code.push_str(&format!("whileend{}:", label));
+            code.push_str(&format!("  br label %begin{}\n", label));
+            code.push_str(&format!("end{}:", label));
         },
         Node::Operator { typ, lhs, rhs } => {
             match typ {
@@ -242,11 +242,11 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
                         code.push_str(&format!("  %{} = icmp sgt i64 %{}, %{}\n", last_index, *last_index - 1, ch_ptr));
                         *last_index += 1;
                         *last_label += 1;
-                        code.push_str(&format!("  br i1 %{}, label %ifthen{}, label %ifend{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
-                        code.push_str(&format!("ifthen{}:\n", *last_label - 1));
+                        code.push_str(&format!("  br i1 %{}, label %then{}, label %end{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
+                        code.push_str(&format!("then{}:\n", *last_label - 1));
                         code.push_str(&format!("  store i64 %{}, i64* %{}\n", ch_ptr, offset));
-                        code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
-                        code.push_str(&format!("ifend{}:\n", *last_label - 1));
+                        code.push_str(&format!("  br label %end{}\n", *last_label - 1));
+                        code.push_str(&format!("end{}:\n", *last_label - 1));
                         code.push_str(&format!("  %{} = load i64, i64* %{}\n", last_index, offset));
                         stack.push_back(*last_index);
                         *last_index += 1;
@@ -263,11 +263,11 @@ fn gen(node: &Node, stack: &mut VecDeque<usize>, functions: &Vec<(String, usize)
                         code.push_str(&format!("  %{} = icmp slt i64 %{}, %{}\n", last_index, *last_index - 1, ch_ptr));
                         *last_index += 1;
                         *last_label += 1;
-                        code.push_str(&format!("  br i1 %{}, label %ifthen{}, label %ifend{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
-                        code.push_str(&format!("ifthen{}:\n", *last_label - 1));
+                        code.push_str(&format!("  br i1 %{}, label %then{}, label %end{}\n", *last_index - 1, *last_label - 1, *last_label - 1));
+                        code.push_str(&format!("then{}:\n", *last_label - 1));
                         code.push_str(&format!("  store i64 %{}, i64* %{}\n", ch_ptr, offset));
-                        code.push_str(&format!("  br label %ifend{}\n", *last_label - 1));
-                        code.push_str(&format!("ifend{}:\n", *last_label - 1));
+                        code.push_str(&format!("  br label %end{}\n", *last_label - 1));
+                        code.push_str(&format!("end{}:\n", *last_label - 1));
                         code.push_str(&format!("  %{} = load i64, i64* %{}\n", last_index, offset));
                         stack.push_back(*last_index);
                         *last_index += 1;
