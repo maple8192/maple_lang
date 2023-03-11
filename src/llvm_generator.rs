@@ -20,6 +20,9 @@ pub fn generate(program: Node) -> Result<String, String> {
             let mut i = 0;
             let mut l = 0;
             code.push_str(&gen(function, &mut stack, &function_info, &mut i, &mut l)?);
+            if !stack.is_empty() {
+                return Err(format!("Stack not empty"));
+            }
         }
 
         Ok(code)
