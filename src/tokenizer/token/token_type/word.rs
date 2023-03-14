@@ -24,7 +24,7 @@ impl Word {
             Word::While => "while",
             Word::Loop => "loop",
             Word::Int => "int",
-            Word::Float => "float",
+            Word::Float => "flt",
             Word::String => "str",
         }
     }
