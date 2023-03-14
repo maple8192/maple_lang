@@ -7,6 +7,7 @@ pub fn generate(program: Node) -> Result<String, String> {
         let mut code = String::new();
 
         let mut function_info = Vec::new();
+        function_info.push((format!("debug"), 1));
         for function in &functions {
             if let Node::Function { name, args_num, variables: _, statement: _ } = function {
                 function_info.push((name.clone(), *args_num))
@@ -14,6 +15,16 @@ pub fn generate(program: Node) -> Result<String, String> {
                 return Err(format!("Not a function"));
             }
         }
+
+        code.push_str("declare i32 @printf(i8*, ...)\n");
+        code.push_str("@str = constant [4 x i8] c\"%d\\0A\\00\"\n");
+        code.push_str("define i64 @debug(i64 %n) {\n");
+        code.push_str("entry:\n");
+        code.push_str("  %0 = getelementptr [4 x i8], [4 x i8]* @str, i32 0, i32 0\n");
+        code.push_str("  %1 = call i32 (i8*, ...) @printf(i8* %0, i64 %n)\n");
+        code.push_str("  %2 = zext i32 %1 to i64\n");
+        code.push_str("  ret i64 %2\n");
+        code.push_str("}\n");
 
         for function in &functions {
             let mut stack = VecDeque::new();
