@@ -11,7 +11,6 @@ pub enum Word {
     Loop,
     Int,
     Float,
-    String,
 }
 
 impl Word {
@@ -25,7 +24,6 @@ impl Word {
             Word::Loop => "loop",
             Word::Int => "int",
             Word::Float => "flt",
-            Word::String => "str",
         }
     }
 

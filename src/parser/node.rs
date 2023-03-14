@@ -1,11 +1,13 @@
 use crate::parser::node::operator::Operator;
+use crate::parser::node::variable_type::VariableType;
 
 pub mod operator;
+pub mod variable_type;
 
 #[derive(Debug, Clone)]
 pub enum Node {
     Program { functions: Vec<Node> },
-    Function { name: String, args_num: usize, variables: Vec<String>, statement: Box<Node> },
+    Function { name: String, args_num: usize, variables: Vec<VariableType>, ret_type: VariableType, statement: Box<Node> },
     Statement { node: Box<Node> },
     Block { statements: Vec<Node> },
     Return { node: Box<Node> },
