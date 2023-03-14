@@ -147,6 +147,50 @@ fn statement(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) 
         let statement = statement(tokens, pos, variables)?;
 
         Ok(Node::While { condition: Box::new(condition), node: Box::new(statement) })
+    } else if tokens[*pos].typ == TokenType::Word(Word::Int) || tokens[*pos].typ == TokenType::Word(Word::Float) || tokens[*pos].typ == TokenType::Word(Word::String) {
+        let typ = tokens[*pos].typ.clone();
+        *pos += 1;
+
+        let mut statements = Vec::new();
+
+        let mut first = true;
+        while tokens[*pos].typ != TokenType::Symbol(Symbol::End) {
+            if !first {
+                if tokens[*pos].typ == TokenType::Symbol(Symbol::Comma) {
+                    *pos += 1;
+                } else {
+                    return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+                }
+            }
+            first = false;
+
+            if let TokenType::Ident(var_name) = &tokens[*pos].typ {
+                *pos += 1;
+
+                for i in 0..variables.len() {
+                    if *var_name == variables[i] {
+                        return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+                    }
+                }
+                let offset = variables.len();
+                variables.push(var_name.clone());
+
+                if tokens[*pos].typ == TokenType::Symbol(Symbol::Assign) {
+                    *pos += 1;
+
+                    let expr = expression(tokens, pos, variables)?;
+                    statements.push(Node::Statement { node: Box::new(Node::Operator { typ: Operator::Assign, lhs: Box::new(Node::Variable { offset }), rhs: Box::new(expr) }) });
+                }
+            } else {
+                return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+            }
+        }
+        if first {
+            return Err(format!("Unexpected Token ({}:{})", tokens[*pos].line, tokens[*pos].pos));
+        }
+        *pos += 1;
+
+        Ok(Node::Block { statements })
     } else {
         let expression = expression(tokens, pos, variables)?;
 
@@ -384,9 +428,7 @@ fn primary(tokens: &Vec<Token>, pos: &mut usize, variables: &mut Vec<String>) ->
                     });
                 }
             }
-            let offset = variables.len();
-            variables.push(ident_name.clone());
-            Ok(Node::Variable { offset })
+            Err(format!("Undefined Variable ({}:{})", tokens[*pos].line, tokens[*pos].pos))
         }
     } else if let TokenType::Number(num) = &tokens[*pos].typ {
         *pos += 1;
